@@ -1,0 +1,18 @@
+# obstacle_range：机器人检测障碍物的最大范围
+# raytrace_range：机器人检测自由空间的最大范围
+obstacle_range: 3.0
+raytrace_range: 3.5
+# footprint：在二维地图上的占用面积
+footprint: [[-0.205, -0.155], [-0.205, 0.155], [0.077, 0.155], [0.077, -0.155]]
+# robot_radius：设置机器人的外半径下面这个本来就是编译的
+# robot_radius: 0.17
+# inflation_radius：障碍物的膨胀半径
+inflation_radius: 1.0
+cost_scaling_factor: 3.0
+
+map_type: costmap
+# observation_sources：列出了代价地图要关注的传感器信息
+# sensor_frame: 表示传感器的参考系名称 data_type：代表激光数据或雷达点云的激光类型 topic代表传感器发布的话题名称 
+# marking和clearing参数代表是否要使用传感器的实时信息来添加或者清除代价地图中的障碍物信息
+observation_sources: scan
+scan: {sensor_frame: base_scan, data_type: LaserScan, topic: scan, marking: true, clearing: true, inf_is_valid: true}

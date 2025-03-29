@@ -1,0 +1,54 @@
+<launch>
+    <!--=========================-->
+    <!--      参数定义部分       -->
+    <!--=========================-->
+    <arg name="map" default="workshop"/>
+    <arg name="world" default="workshop"/>
+    <arg name="robot" default="turtlebot3_waffle" />
+    <arg name="robot_x" value="0.0" />
+    <arg name="robot_y" value="0.0" />
+    <arg name="robot_z" value="0.0" />
+    <arg name="robot_yaw" value="0" />
+    <!--=========================-->
+    <!--      仿真环境相关,因为没有实体机器人        -->
+    <!--=========================-->
+    <!-- gazebo环境作为仿真环境 -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find nav_global_planner)/worlds/$(arg world).world" />
+    </include>
+    <!-- 机器人模型 -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_burger.urdf.xacro" />
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -x $(arg robot_x) -y $(arg robot_y) -z $(arg robot_z) -Y $(arg robot_yaw) -model $(arg robot) -param robot_description" />
+    <!--=========================-->
+    <!--      机器人状态管理      -->
+    <!--=========================-->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" />
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen" />
+    <!--=========================-->
+    <!--      可视化相关          -->
+    <!--=========================-->
+    <node name="rviz" pkg="rviz" type="rviz" output="screen" />
+    <!--=========================-->
+    <!--      路径规划相关        -->
+    <!--=========================-->
+    <!-- 地图 -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find nav_global_planner)/maps/$(arg map)/$(arg map).yaml" />
+    <!-- AMCL 定位 -->
+    <include file="$(find nav_global_planner)/launch/amcl.launch.xml">
+        <arg name="robot_x" value="$(arg robot_x)" />
+        <arg name="robot_y" value="$(arg robot_y)" />
+        <arg name="robot_z" value="$(arg robot_z)" />
+        <arg name="robot_yaw" value="$(arg robot_yaw)" />
+    </include>
+    <!-- move_base 全局和局部规划 -->
+    <node pkg="move_base" type="move_base" name="move_base" output="screen">
+        <!-- 代价地图参数 -->
+        <rosparam file="$(find nav_global_planner)/nav_lidar/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find nav_global_planner)/nav_lidar/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find nav_global_planner)/nav_lidar/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find nav_global_planner)/nav_lidar/local_costmap_params.yaml" command="load" />
+        <!-- 指定全局规划器 -->
+        <param name="base_global_planner" value="nav_global_planner/NavGlobalPlanner" /> 
+    </node>
+</launch>
