@@ -1,0 +1,6 @@
+<library path="lib/libnav_global_planner">
+    <class name="nav_global_planner/NavGlobalPlanner" type="nav_global_planner::NavGlobalPlanner"
+           base_class_type="nav_core::BaseGlobalPlanner">
+        <description>My custom global planner</description>
+    </class>
+</library>
